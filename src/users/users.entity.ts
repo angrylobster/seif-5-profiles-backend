@@ -19,3 +19,10 @@ export class User {
     @Column()
     password: string;
 }
+
+export type UserJwtJson  = {
+    name: NameDetails;
+    email: string;
+    iat: number;
+    exp: number;
+}

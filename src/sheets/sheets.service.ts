@@ -3,21 +3,21 @@ import { plainToClass } from 'class-transformer';
 import { JWTOptions } from 'google-auth-library';
 import { sheets_v4 } from 'googleapis';
 import { JWT } from 'googleapis-common';
-import { HomeworkSheet } from './sheets.dtos';
+import { SheetHomework } from './sheets.dtos';
 import { NamedRange } from './sheets.enum';
 
 @Injectable() 
 export class SheetsService {
     private jwtClient: JWT;
 
-    async getHomeworkSheet (): Promise<HomeworkSheet> {
+    async getHomeworkSheet (): Promise<SheetHomework> {
         await this.authorize();
         const spreadsheetValues = new sheets_v4.Resource$Spreadsheets$Values({ _options: { auth: this.jwtClient } });
         const { data } = await spreadsheetValues.batchGet({ 
             ranges: Object.values(NamedRange),
             spreadsheetId: process.env.SPREADSHEET_COURSE_TRACKER_ID, 
         });
-        return plainToClass(HomeworkSheet, data);
+        return plainToClass(SheetHomework, data);
     }
 
     private async authorize (): Promise<void> {

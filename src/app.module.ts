@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { HomeworkModule } from './homework/homework.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
+import { HomeworkModule } from './homework/homework.module';
 @Module({
     imports: [
+        AuthModule,
         ConfigModule.forRoot(), 
         HomeworkModule,
-        AuthModule,
         UsersModule,
         TypeOrmModule.forRoot({
             type: 'mongodb',
