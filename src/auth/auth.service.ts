@@ -1,15 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MongoRepository } from 'typeorm';
 import { User } from '../users/users.entity';
-import * as nodemailer from 'nodemailer';
+import { SendInBlueTransporter } from './transporters/sendInBlue.transporter';
+import { v4 } from 'uuid';
+import { plainToClass } from 'class-transformer';
+import { UserNameDetails } from '../users/users.dtos';
+import { ChangePasswordDto } from './auth.dtos';
 
 @Injectable()
 export class AuthService {
     constructor (
-        @InjectRepository(User) private usersRepository: Repository<User>,
-        private jwtService: JwtService,
+        @InjectRepository(User) private readonly usersRepository: MongoRepository<User>,
+        private readonly jwtService: JwtService,
+        private readonly sendInBlueTransporter: SendInBlueTransporter,
     ) {}
 
     async validateUser (email: string, password: string): Promise<User> {
@@ -23,25 +28,27 @@ export class AuthService {
     async resetPassword (email: string) {
         const user = await this.usersRepository.findOne({ email });
         if (!user) throw new NotFoundException(`Could not find user with email ${email}`);
-        const transporter = nodemailer.createTransport({
-            host: 'smtp-relay.sendinblue.com',
-            port: 587,
-            secure: false,
-            requireTLS: false,
-            auth: {
-                user: 'liewminshan@gmail.com',
-                pass: 'Cbh6T1zmwvScWUO8',
-            },
-        });
-        const sentEmail = await transporter.sendMail({
-            from: 'sgseif5@gmail.com',
-            to: user.email,
-            subject: 'Reset password',
-            text: 'Hey, you reset your password',
-        });
-
-        console.log(sentEmail.messageId);
-        
+        const passwordResetId = v4();
+        user.passwordResetId = passwordResetId;
+        const updatedUser = await this.usersRepository.save(user);
+        await this.sendInBlueTransporter.sendResetPasswordEmail(updatedUser);
         return user;
+    }
+
+    async getChangePasswordDetails (changePasswordQuery: Pick<User, 'passwordResetId'>): Promise<UserNameDetails> {
+        const user = await this.usersRepository.findOne(changePasswordQuery);
+        return plainToClass(UserNameDetails, user, { excludeExtraneousValues: true });
+    }
+
+    async changePassword (changePasswordDto: ChangePasswordDto): Promise<User> {
+        const response = await this.usersRepository.findOneAndUpdate(
+            { passwordResetId: changePasswordDto.passwordResetId },
+            {
+                $unset: { passwordResetId: '' },
+                $set: { password: changePasswordDto.password },
+            },
+        );
+
+        return plainToClass(User, response.value, { excludeExtraneousValues: true });
     }
 }

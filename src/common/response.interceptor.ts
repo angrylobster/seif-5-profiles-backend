@@ -1,4 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import { classToPlain } from 'class-transformer';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpResponse } from './response.interfaces';
@@ -11,7 +12,7 @@ export class ResponseInterceptor <T> implements NestInterceptor {
                 map(data => {
                     return {
                         status: context.switchToHttp().getResponse().statusCode,
-                        data,
+                        data: classToPlain(data),
                     } as HttpResponse<T>;
                 }),
             );

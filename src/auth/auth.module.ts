@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { HttpModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { SendInBlueTransporter } from './transporters/sendInBlue.transporter';
 
 @Module({
     imports: [
@@ -23,6 +24,14 @@ import { LocalStrategy } from './strategies/local.strategy';
             inject: [ConfigService],
         }),
         TypeOrmModule.forFeature([User]),
+        HttpModule.registerAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => ({
+                headers: { 'api-key': configService.get('SEND_IN_BLUE_API_KEY') },
+                baseURL: 'https://api.sendinblue.com',
+            }),
+        }),
     ],
     controllers: [
         AuthController,
@@ -31,6 +40,7 @@ import { LocalStrategy } from './strategies/local.strategy';
         AuthService,
         JwtStrategy,
         LocalStrategy,
+        SendInBlueTransporter,
     ],
 })
 export class AuthModule {}

@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Column, Entity, ObjectIdColumn } from 'typeorm';
 
 export type NameDetails = {
@@ -7,6 +8,7 @@ export type NameDetails = {
 
 @Entity('user')
 export class User {
+    @Exclude()
     @ObjectIdColumn({ type: 'string' })
     _id: string;
 
@@ -16,8 +18,16 @@ export class User {
     @Column()
     email: string;
 
+    @Exclude()
     @Column()
     password: string;
+
+    @Column({ nullable: true })
+    passwordResetId: string;
+
+    get fullName (): string { 
+        return `${this.name.first} ${this.name.last}`;
+    }
 }
 
 export type UserJwtJson  = {
