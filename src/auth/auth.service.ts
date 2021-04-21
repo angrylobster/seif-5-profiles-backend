@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
@@ -8,6 +8,7 @@ import { v4 } from 'uuid';
 import { plainToClass } from 'class-transformer';
 import { UserNameDetails } from '../users/users.dtos';
 import { ChangePasswordDto } from './auth.dtos';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,11 @@ export class AuthService {
     ) {}
 
     async validateUser (email: string, password: string): Promise<User> {
-        return await this.usersRepository.findOne({ email, password });
+        const user = await this.usersRepository.findOne({ email });
+        if (!user) throw new BadRequestException('Invalid email');
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        if (!isPasswordMatch) throw new BadRequestException('Invalid password');
+        return user;
     }
     
     login (user: Partial<User>) {
@@ -41,14 +46,14 @@ export class AuthService {
     }
 
     async changePassword (changePasswordDto: ChangePasswordDto): Promise<User> {
+        const hashedPassword = await bcrypt.hash(changePasswordDto.password, 10);
         const response = await this.usersRepository.findOneAndUpdate(
             { passwordResetId: changePasswordDto.passwordResetId },
             {
                 $unset: { passwordResetId: '' },
-                $set: { password: changePasswordDto.password },
+                $set: { password: hashedPassword },
             },
         );
-
         return plainToClass(User, response.value, { excludeExtraneousValues: true });
     }
 }
