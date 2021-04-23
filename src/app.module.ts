@@ -14,10 +14,7 @@ import { HomeworkModule } from './homework/homework.module';
         UsersModule,
         TypeOrmModule.forRoot({
             type: 'mongodb',
-            host: process.env.DB_HOST,
-            port: Number(process.env.DB_PORT),
-            username: process.env.DB_USERNAME,
-            password: process.env.DB_PASSWORD,
+            url: process.env.DB_URL,
             database: process.env.DB_NAME,
             synchronize: true,
             useUnifiedTopology: true,
