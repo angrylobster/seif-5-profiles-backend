@@ -9,6 +9,6 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe());
     app.useGlobalFilters(new AllExceptionsFilter());
     app.useGlobalInterceptors(new ResponseInterceptor());
-    await app.listen(process.env.DEFAULT_PORT);
+    await app.listen(process.env.PORT);
 }
 bootstrap();
