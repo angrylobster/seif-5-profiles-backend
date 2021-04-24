@@ -9,6 +9,7 @@ export class AppController {
 
     @Get()
     getHello(): string {
+        throw new Error ('banana');
         return 'hello';
     }
 }

@@ -3,8 +3,24 @@ export interface HttpResponse <T> {
     data: T;
 }
 
-export interface HttpExceptionResponse {
+export interface HttpExceptionResponseData {
     statusCode: number;
     message: string[];
     error: string;
+}
+
+export class HttpErrorResponse <T> {
+    status: number;
+    error: string;
+    data: T;
+
+    constructor (
+        status: number,
+        error: string,
+        data: T,
+    ) {
+        this.status = status;
+        this.error = error;
+        this.data = data;
+    }
 }
