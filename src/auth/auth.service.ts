@@ -27,7 +27,13 @@ export class AuthService {
     }
     
     login (user: Partial<User>) {
-        return this.jwtService.sign({ email: user.email, name: user.name });
+        return this.jwtService.sign({
+            email: user.email,
+            name: user.name,
+            readinessAssessment: user.readinessAssessment,
+            enrollmentDate: user.enrollmentDate,
+            githubHandle: user.githubHandle,
+        });
     }
 
     async resetPassword (email: string) {

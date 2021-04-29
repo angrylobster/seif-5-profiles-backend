@@ -28,6 +28,15 @@ export class User {
     get fullName (): string { 
         return `${this.name.first} ${this.name.last}`;
     }
+
+    @Column()
+    enrollmentDate: string;
+
+    @Column({ nullable: true })
+    readinessAssessment: number;
+
+    @Column()
+    githubHandle: string;
 }
 
 export type UserJwtJson  = {
