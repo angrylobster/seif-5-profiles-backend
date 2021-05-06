@@ -1,4 +1,5 @@
 import { Controller, Get, UseGuards, Request, NotFoundException } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { SheetsService } from '../sheets/sheets.service';
 import { Homework } from './homework.dtos';
@@ -7,8 +8,9 @@ import { Homework } from './homework.dtos';
 @UseGuards(JwtGuard)
 export class HomeworkController {
     constructor (private readonly sheetsService: SheetsService) {}
+
     @Get('')
-    async getAllByStudent (@Request() req): Promise<Homework[]> {
+    async getAllByStudent (@Request() req: ExpressRequest): Promise<Homework[]> {
         const homeworkSheet = await this.sheetsService.getHomeworkSheet();
         const names = homeworkSheet.getHomeworkNames();
         const lessons = homeworkSheet.getLessons();

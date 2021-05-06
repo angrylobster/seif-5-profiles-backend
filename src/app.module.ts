@@ -6,8 +6,10 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { HomeworkModule } from './homework/homework.module';
+import { AttendanceModule } from './attendance/attendance.module';
 @Module({
     imports: [
+        AttendanceModule,
         AuthModule,
         ConfigModule.forRoot(), 
         HomeworkModule,

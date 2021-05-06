@@ -6,4 +6,8 @@ export enum NamedRange {
     HomeworkNames = 'HOMEWORK_NAMES',
     HomeworkDueDates = 'HOMEWORK_DUE_DATES',
     HomeworkCompletion = 'HOMEWORK_COMPLETION',
+    HomeworkEmails = 'HOMEWORK_EMAILS',
+    AttendanceDates = 'ATTENDANCE_DATES',
+    AttendanceEmails = 'ATTENDANCE_EMAILS',
+    AttendanceRecords = 'ATTENDANCE_RECORDS',
 }

@@ -3,8 +3,7 @@ import { plainToClass } from 'class-transformer';
 import { JWTOptions } from 'google-auth-library';
 import { sheets_v4 } from 'googleapis';
 import { JWT } from 'googleapis-common';
-import { SheetHomework } from './sheets.dtos';
-import { NamedRange } from './sheets.enum';
+import { SheetAttendance, SheetHomework } from './sheets.dtos';
 
 @Injectable() 
 export class SheetsService {
@@ -14,10 +13,20 @@ export class SheetsService {
         await this.authorize();
         const spreadsheetValues = new sheets_v4.Resource$Spreadsheets$Values({ _options: { auth: this.jwtClient } });
         const { data } = await spreadsheetValues.batchGet({ 
-            ranges: Object.values(NamedRange),
+            ranges: SheetHomework.NamedRanges,
             spreadsheetId: process.env.SPREADSHEET_COURSE_TRACKER_ID, 
         });
         return plainToClass(SheetHomework, data);
+    }
+
+    async getAttendanceSheet (): Promise<SheetAttendance> {
+        await this.authorize();
+        const spreadsheetValues = new sheets_v4.Resource$Spreadsheets$Values({ _options: { auth: this.jwtClient } });
+        const { data } = await spreadsheetValues.batchGet({
+            ranges: SheetAttendance.NamedRanges,
+            spreadsheetId: process.env.SPREADSHEET_COURSE_TRACKER_ID,
+        });
+        return plainToClass(SheetAttendance, data);
     }
 
     private async authorize (): Promise<void> {
